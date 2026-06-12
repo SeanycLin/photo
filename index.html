@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>光影之間 · 影像攝影</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --charcoal: #1c1c1c;
+    --warm-white: #f5f0e8;
+    --cream: #ede8de;
+    --sage: #8a9e7a;
+    --dusty-rose: #c4927a;
+    --mid-grey: #6b6b6b;
+    --light-grey: #d4cfc6;
+    --ink: #2e2e2e;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--warm-white);
+    color: var(--ink);
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.5;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(245, 240, 232, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--light-grey);
+    padding: 0 48px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.04em;
+    color: var(--charcoal);
+    text-decoration: none;
+    font-style: italic;
+  }
+  .nav-logo span {
+    font-style: normal;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--mid-grey);
+    display: block;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--charcoal); }
+
+  .cart-badge {
+    background: var(--dusty-rose);
+    color: white;
+    font-size: 0.65rem;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    vertical-align: middle;
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; padding-top: 64px; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* ── HOME PAGE ── */
+  .hero {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+  }
+  .hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(28,28,28,0.08) 0%, rgba(28,28,28,0.45) 100%);
+  }
+  .hero-content {
+    position: absolute;
+    bottom: 80px;
+    left: 64px;
+    color: white;
+  }
+  .hero-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.1;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .hero-title em {
+    font-style: italic;
+    opacity: 0.85;
+  }
+  .hero-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    letter-spacing: 0.08em;
+    margin-bottom: 40px;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 14px 40px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.7);
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: white;
+  }
+
+  .home-about {
+    max-width: 900px;
+    margin: 100px auto;
+    padding: 0 48px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .about-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    padding-top: 6px;
+  }
+  .about-text {
+    font-size: 1rem;
+    line-height: 2;
+    color: var(--mid-grey);
+    border-left: 1px solid var(--light-grey);
+    padding-left: 40px;
+  }
+  .about-text strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--charcoal);
+    font-weight: 400;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  /* ── SHOP PAGE ── */
+  .page-header {
+    padding: 64px 64px 40px;
+    border-bottom: 1px solid var(--light-grey);
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+  }
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+  }
+  .page-header span {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+    padding: 2px;
+    margin: 0;
+  }
+
+  .product-card {
+    background: var(--warm-white);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+  .product-card:hover { transform: scale(1.005); z-index: 2; }
+
+  .product-img-wrap {
+    position: relative;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: var(--cream);
+  }
+  .product-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    display: block;
+  }
+  .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+
+  /* Film-strip holes — signature detail */
+  .product-img-wrap::before,
+  .product-img-wrap::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 80px;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 8px,
+      rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 14px
+    );
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .product-img-wrap::before { left: 8px; }
+  .product-img-wrap::after { right: 8px; }
+  .product-card:hover .product-img-wrap::before,
+  .product-card:hover .product-img-wrap::after { opacity: 1; }
+
+  .product-info {
+    padding: 28px 32px;
+    border-top: 1px solid var(--light-grey);
+  }
+  .product-num {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--dusty-rose);
+    margin-bottom: 8px;
+  }
+  .product-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 4px;
+    color: var(--charcoal);
+  }
+  .product-meta {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    color: var(--mid-grey);
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .product-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--charcoal);
+  }
+  .product-price small {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    color: var(--mid-grey);
+    margin-left: 2px;
+  }
+  .btn-add {
+    padding: 10px 24px;
+    background: var(--charcoal);
+    color: var(--warm-white);
+    border: none;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-add:hover { background: var(--dusty-rose); }
+  .btn-add.added { background: var(--sage); }
+
+  /* ── CART PAGE ── */
+  .cart-layout {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 48px 80px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+  }
+
+  .cart-items-section h2, .cart-form-section h2 {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--light-grey);
+  }
+
+  .cart-empty {
+    color: var(--mid-grey);
+    font-size: 0.9rem;
+    line-height: 2;
+    text-align: center;
+    padding: 48px 0;
+  }
+  .cart-empty strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--light-grey);
+    margin-bottom: 12px;
+  }
+
+  .cart-item {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--light-grey);
+  }
+  .cart-item-img {
+    width: 64px; height: 64px;
+    object-fit: cover;
+    background: var(--cream);
+  }
+  .cart-item-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+  .cart-item-price {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    color: var(--mid-grey);
+  }
+  .cart-qty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.85rem;
+  }
+  .qty-btn {
+    width: 28px; height: 28px;
+    border: 1px solid var(--light-grey);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--ink);
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qty-btn:hover { border-color: var(--charcoal); background: var(--charcoal); color: white; }
+  .qty-remove {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: color 0.15s;
+  }
+  .qty-remove:hover { color: var(--dusty-rose); }
+
+  .cart-total {
+    margin-top: 24px;
+    text-align: right;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+  }
+  .cart-total small {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    color: var(--mid-grey);
+    margin-right: 8px;
+  }
+
+  /* Form */
+  .form-field {
+    margin-bottom: 20px;
+  }
+  .form-field label {
+    display: block;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    margin-bottom: 8px;
+  }
+  .form-field input {
+    width: 100%;
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid var(--light-grey);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-field input:focus { border-color: var(--charcoal); }
+  .form-field input::placeholder { color: var(--light-grey); }
+
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--charcoal);
+    color: var(--warm-white);
+    border: none;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .btn-submit:hover { background: var(--dusty-rose); }
+  .btn-submit:disabled { background: var(--light-grey); cursor: not-allowed; }
+
+  .toast {
+    position: fixed;
+    bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--charcoal);
+    color: var(--warm-white);
+    padding: 14px 32px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    z-index: 500;
+    opacity: 0;
+    transition: all 0.35s ease;
+    pointer-events: none;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* ── ADMIN PAGE ── */
+  .admin-login {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 64px 48px;
+    background: white;
+    border: 1px solid var(--light-grey);
+    text-align: center;
+  }
+  .admin-login h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .admin-login p {
+    font-size: 0.8rem;
+    color: var(--mid-grey);
+    margin-bottom: 32px;
+  }
+  .admin-login .hint {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    color: var(--dusty-rose);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+  .admin-login input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--light-grey);
+    background: transparent;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.3em;
+    outline: none;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+  .admin-login input:focus { border-color: var(--charcoal); }
+  .admin-login .error { color: var(--dusty-rose); font-size: 0.75rem; margin-bottom: 12px; min-height: 20px; }
+
+  .admin-dashboard { padding: 48px 64px; }
+
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-bottom: 48px;
+  }
+  .stat-card {
+    background: var(--cream);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--dusty-rose);
+    opacity: 0.5;
+  }
+  .stat-card:nth-child(2)::before { background: var(--sage); }
+  .stat-card:nth-child(3)::before { background: var(--charcoal); }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+  }
+
+  .orders-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .orders-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+  }
+  .orders-header span {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+  }
+
+  .orders-empty {
+    padding: 64px;
+    text-align: center;
+    color: var(--mid-grey);
+    font-size: 0.9rem;
+    border: 1px dashed var(--light-grey);
+  }
+
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .order-table th {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--light-grey);
+    font-weight: 400;
+  }
+  .order-table td {
+    padding: 16px 16px;
+    border-bottom: 1px solid var(--cream);
+    font-size: 0.85rem;
+    vertical-align: top;
+  }
+  .order-table tr:hover td { background: rgba(237, 232, 222, 0.4); }
+
+  .order-items-list {
+    font-size: 0.8rem;
+    color: var(--mid-grey);
+    line-height: 1.8;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .status-badge.pending {
+    color: var(--dusty-rose);
+    border-color: var(--dusty-rose);
+    background: rgba(196, 146, 122, 0.06);
+  }
+  .status-badge.done {
+    color: var(--sage);
+    border-color: var(--sage);
+    background: rgba(138, 158, 122, 0.06);
+  }
+  .status-badge:hover { opacity: 0.7; }
+
+  .admin-logout {
+    margin-top: 48px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid-grey);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .admin-logout:hover { color: var(--dusty-rose); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .hero-content { left: 24px; bottom: 48px; }
+    .home-about { grid-template-columns: 1fr; padding: 0 24px; margin: 64px auto; }
+    .about-text { border-left: none; padding-left: 0; border-top: 1px solid var(--light-grey); padding-top: 24px; }
+    .page-header { padding: 40px 24px 24px; }
+    .cart-layout { grid-template-columns: 1fr; padding: 32px 24px; }
+    .admin-dashboard { padding: 32px 24px; }
+    .admin-stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" onclick="showPage('home')">
+    光影之間
+    <span>Photography Studio</span>
+  </a>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" id="nav-home" class="active">首頁</a></li>
+    <li><a onclick="showPage('shop')" id="nav-shop">攝影商品</a></li>
+    <li>
+      <a onclick="showPage('cart')" id="nav-cart">
+        購物車<span class="cart-badge" id="cart-badge">0</span>
+      </a>
+    </li>
+    <li><a onclick="showPage('admin')" id="nav-admin">後臺管理</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HOME PAGE ══ -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <img src="https://i.ibb.co/sJVNqcLj/Homepage.png" alt="光影之間 攝影">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Taiwan Photography Studio · 2024</p>
+      <h1 class="hero-title">用光，<em>書寫</em><br>這座島的表情</h1>
+      <p class="hero-subtitle">用鏡頭凝住每一個剎那</p>
+      <button class="btn-primary" onclick="showPage('shop')">攝影商品</button>
+    </div>
+  </section>
+
+  <div class="home-about">
+    <div class="about-label">關於我們</div>
+    <div class="about-text">
+      <strong>每一張照片，都是一封寫給土地的信</strong>
+      我們走遍台灣的山海城鄉，在晨光與暮色之間尋找那些即將消逝的日常片刻。攝影對我們而言不只是紀錄，而是一種對話——與光線、與土地、與每一個被鏡頭凝住的靈魂。<br><br>
+      我們將這些影像化為書、明信片與海報，讓每一個相遇的人，都能帶走一片屬於自己的台灣。
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHOP PAGE ══ -->
+<div id="page-shop" class="page">
+  <div class="page-header">
+    <h1>攝影商品</h1>
+    <span>Photography Goods</span>
+  </div>
+  <div class="products-grid" id="products-grid"></div>
+</div>
+
+<!-- ══ CART PAGE ══ -->
+<div id="page-cart" class="page">
+  <div class="page-header">
+    <h1>購物車</h1>
+    <span>Cart</span>
+  </div>
+  <div class="cart-layout">
+    <div class="cart-items-section">
+      <h2>已選商品</h2>
+      <div id="cart-items-list"></div>
+      <div class="cart-total" id="cart-total" style="display:none"></div>
+    </div>
+    <div class="cart-form-section">
+      <h2>訂購資訊</h2>
+      <div class="form-field">
+        <label>姓名</label>
+        <input type="text" id="buyer-name" placeholder="請輸入姓名">
+      </div>
+      <div class="form-field">
+        <label>電話</label>
+        <input type="tel" id="buyer-phone" placeholder="請輸入電話號碼">
+      </div>
+      <button class="btn-submit" id="submit-order" onclick="submitOrder()">確認訂單</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN PAGE ══ -->
+<div id="page-admin" class="page">
+  <!-- Login -->
+  <div id="admin-login" class="admin-login">
+    <h2>後臺管理</h2>
+    <p>Administration</p>
+    <p class="hint">提示：密碼為 12345</p>
+    <input type="password" id="admin-pw" placeholder="••••••" maxlength="10"
+           onkeydown="if(event.key==='Enter')adminLogin()">
+    <p class="error" id="admin-error"></p>
+    <button class="btn-submit" onclick="adminLogin()">登入</button>
+  </div>
+  <!-- Dashboard -->
+  <div id="admin-dashboard" class="admin-dashboard" style="display:none">
+    <div class="admin-stats">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">總訂單數</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-pending">0</div>
+        <div class="stat-label">未處理訂單</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-done">0</div>
+        <div class="stat-label">已處理訂單</div>
+      </div>
+    </div>
+    <div class="orders-header">
+      <h2>訂單列表</h2>
+      <span>點選狀態可切換處理進度</span>
+    </div>
+    <div id="orders-container"></div>
+    <button class="admin-logout" onclick="adminLogout()">登出 ↗</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  ⬇ 將你的 Google Apps Script Web App 網址貼在這裡
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzG_mptZx2MLLNUu7DZkpPNf8oGfZorGquhJzh6YA29AM4e2g_1_wuoaURjetPUTEH03Q/exec';
+// ══════════════════════════════════════════════
+
+// ── DATA ──
+const PRODUCTS = [
+  {
+    id: 1,
+    name: '鏡頭裡的台灣味',
+    desc: '攝影集',
+    price: 500,
+    img: 'https://i.ibb.co/8g9WPFMH/image.png',
+    unit: '本'
+  },
+  {
+    id: 2,
+    name: '美食明信片',
+    desc: '精緻明信片',
+    price: 30,
+    img: 'https://i.ibb.co/LdKykzRq/image.png',
+    unit: '張'
+  },
+  {
+    id: 3,
+    name: '海報',
+    desc: '攝影海報',
+    price: 300,
+    img: 'https://i.ibb.co/KcLYrvKH/image.png',
+    unit: '張'
+  }
+];
+
+let cart = {}; // { productId: quantity }
+let orders = [];   // local cache from Sheets
+let adminLoggedIn = false;
+
+// ── API HELPERS ──
+async function apiGet(action) {
+  const res = await fetch(`${APPS_SCRIPT_URL}?action=${action}`, { redirect: 'follow' });
+  return res.json();
+}
+
+async function apiPost(body) {
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain' }, // avoid CORS preflight
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// ── NAV ──
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+
+  if (page === 'cart') renderCart();
+  if (page === 'shop') renderProducts();
+  if (page === 'admin') renderAdmin();
+
+  window.scrollTo(0, 0);
+}
+
+// ── PRODUCTS ──
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = PRODUCTS.map((p, i) => `
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+      </div>
+      <div class="product-info">
+        <div class="product-num">No.0${i+1}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-meta">${p.desc}</div>
+        <div class="product-footer">
+          <div class="product-price">NT$ ${p.price}<small>/ ${p.unit}</small></div>
+          <button class="btn-add" id="btn-${p.id}" onclick="addToCart(${p.id})">加入購物車</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  updateCartBadge();
+  const btn = document.getElementById('btn-' + id);
+  btn.textContent = '已加入 ✓';
+  btn.classList.add('added');
+  setTimeout(() => {
+    btn.textContent = '加入購物車';
+    btn.classList.remove('added');
+  }, 1200);
+  showToast('已加入購物車');
+}
+
+// ── CART BADGE ──
+function updateCartBadge() {
+  const total = Object.values(cart).reduce((a, b) => a + b, 0);
+  document.getElementById('cart-badge').textContent = total;
+}
+
+// ── RENDER CART ──
+function renderCart() {
+  const list = document.getElementById('cart-items-list');
+  const totalEl = document.getElementById('cart-total');
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+
+  if (ids.length === 0) {
+    list.innerHTML = `<div class="cart-empty"><strong>購物車是空的</strong>前往攝影商品選購，帶走一片台灣的光影</div>`;
+    totalEl.style.display = 'none';
+    return;
+  }
+
+  let total = 0;
+  list.innerHTML = ids.map(id => {
+    const p = PRODUCTS.find(x => x.id == id);
+    const qty = cart[id];
+    const subtotal = p.price * qty;
+    total += subtotal;
+    return `
+      <div class="cart-item">
+        <img class="cart-item-img" src="${p.img}" alt="${p.name}">
+        <div>
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-price">NT$ ${p.price} / ${p.unit}</div>
+          <div style="margin-top:10px">
+            <div class="cart-qty">
+              <button class="qty-btn" onclick="changeQty(${id}, -1)">−</button>
+              <span>${qty}</span>
+              <button class="qty-btn" onclick="changeQty(${id}, 1)">+</button>
+              <button class="qty-remove" onclick="removeItem(${id})">移除</button>
+            </div>
+          </div>
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--charcoal);white-space:nowrap">
+          NT$ ${subtotal}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  totalEl.style.display = 'block';
+  totalEl.innerHTML = `<small>合計</small>NT$ ${total.toLocaleString()}`;
+}
+
+function changeQty(id, delta) {
+  cart[id] = Math.max(0, (cart[id] || 0) + delta);
+  if (cart[id] === 0) delete cart[id];
+  updateCartBadge();
+  renderCart();
+}
+
+function removeItem(id) {
+  delete cart[id];
+  updateCartBadge();
+  renderCart();
+}
+
+// ── SUBMIT ORDER ──
+async function submitOrder() {
+  const name = document.getElementById('buyer-name').value.trim();
+  const phone = document.getElementById('buyer-phone').value.trim();
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+
+  if (!name) { showToast('請輸入姓名'); return; }
+  if (!phone) { showToast('請輸入電話'); return; }
+  if (ids.length === 0) { showToast('購物車是空的'); return; }
+
+  const btn = document.getElementById('submit-order');
+  btn.disabled = true;
+  btn.textContent = '送出中…';
+
+  const items = ids.map(id => {
+    const p = PRODUCTS.find(x => x.id == id);
+    return { name: p.name, qty: cart[id], price: p.price, subtotal: p.price * cart[id] };
+  });
+  const total = items.reduce((a, b) => a + b.subtotal, 0);
+  const time = new Date().toLocaleString('zh-TW', { hour12: false });
+
+  try {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+      throw new Error('尚未設定 Apps Script 網址');
+    }
+    const result = await apiPost({ action: 'addOrder', name, phone, items, total, time });
+    if (!result.success) throw new Error(result.error || '寫入失敗');
+
+    cart = {};
+    updateCartBadge();
+    document.getElementById('buyer-name').value = '';
+    document.getElementById('buyer-phone').value = '';
+    renderCart();
+    showToast('訂單已送出，謝謝您的購買！');
+  } catch (err) {
+    showToast('送出失敗：' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '確認訂單';
+  }
+}
+
+// ── ADMIN ──
+function adminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === '12345') {
+    adminLoggedIn = true;
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    loadAndRenderAdmin();
+  } else {
+    document.getElementById('admin-error').textContent = '密碼錯誤，請再試一次';
+    document.getElementById('admin-pw').value = '';
+  }
+}
+
+function adminLogout() {
+  adminLoggedIn = false;
+  orders = [];
+  document.getElementById('admin-login').style.display = 'block';
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('admin-pw').value = '';
+  document.getElementById('admin-error').textContent = '';
+}
+
+async function loadAndRenderAdmin() {
+  const container = document.getElementById('orders-container');
+  container.innerHTML = '<div class="orders-empty" style="opacity:0.5">載入訂單中…</div>';
+
+  try {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+      throw new Error('請先設定 Apps Script 網址');
+    }
+    const result = await apiGet('getOrders');
+    if (!result.success) throw new Error(result.error);
+    orders = result.orders || [];
+  } catch (err) {
+    container.innerHTML = `<div class="orders-empty" style="color:var(--dusty-rose)">無法載入訂單：${err.message}</div>`;
+    return;
+  }
+
+  renderAdmin();
+}
+
+function renderAdmin() {
+  if (!adminLoggedIn) return;
+  const total = orders.length;
+  const pending = orders.filter(o => o.status === 'pending').length;
+  const done = orders.filter(o => o.status === 'done').length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-done').textContent = done;
+
+  const container = document.getElementById('orders-container');
+  if (orders.length === 0) {
+    container.innerHTML = '<div class="orders-empty">目前尚無訂單</div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>編號</th><th>時間</th><th>姓名</th><th>電話</th>
+          <th>商品</th><th>金額</th><th>狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${[...orders].reverse().map(o => `
+          <tr>
+            <td style="font-family:'Lato',sans-serif;font-size:0.75rem;color:var(--mid-grey)">#${String(o.id).padStart(4,'0')}</td>
+            <td style="font-family:'Lato',sans-serif;font-size:0.75rem;color:var(--mid-grey);white-space:nowrap">${o.time}</td>
+            <td><strong>${o.name}</strong></td>
+            <td style="font-family:'Lato',sans-serif;font-size:0.82rem">${o.phone}</td>
+            <td><div class="order-items-list">${o.items.map(i => `${i.name} × ${i.qty}`).join('<br>')}</div></td>
+            <td style="font-family:'Playfair Display',serif;white-space:nowrap">NT$ ${Number(o.total).toLocaleString()}</td>
+            <td>
+              <span class="status-badge ${o.status}" onclick="toggleStatus('${o.id}', this)">
+                ${o.status === 'pending' ? '未處理' : '已處理'}
+              </span>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function toggleStatus(id, el) {
+  const order = orders.find(o => String(o.id) === String(id));
+  if (!order) return;
+
+  const newStatus = order.status === 'pending' ? 'done' : 'pending';
+  el.style.opacity = '0.4';
+
+  try {
+    const result = await apiPost({ action: 'updateStatus', id, status: newStatus });
+    if (!result.success) throw new Error(result.error);
+    order.status = newStatus;
+    renderAdmin();
+  } catch (err) {
+    showToast('更新失敗：' + err.message);
+    el.style.opacity = '1';
+  }
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// init
+renderProducts();
+</script>
+</body>
+</html>
